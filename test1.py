@@ -5,6 +5,10 @@ import yfinance as yf
 st.set_page_config(page_title="NSE Stock Viewer", layout="centered")
 
 st.title("📈 NSE Stock High/Low Viewer")
+@st.cache_data(ttl=5)
+def load_data(symbol):
+    stock = yf.Ticker(symbol)
+    return stock.history(period="1d")
 
 # User input
 stock_input = st.text_input(
