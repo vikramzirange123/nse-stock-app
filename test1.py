@@ -1,52 +1,91 @@
 import streamlit as st
 import yfinance as yf
+import pandas as pd
+import sys
+# -----------------------------
+# NSE STOCK LIST
+# -----------------------------
 
-# Page title
-st.set_page_config(page_title="NSE Stock Viewer", layout="centered")
+url = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
 
-st.title("📈 NSE Stock High/Low Viewer")
+df = pd.read_csv(url)
+# -----------------------------
+# PAGE SETTINGS
+# -----------------------------
+st.set_page_config(
+    page_title="NSE Stock Dashboard",
+    layout="wide"
+)
+
+# -----------------------------
+# TITLE
+# -----------------------------
+st.title("📈 NSE Stock Dashboard")
+
+# -----------------------------
+# SIDEBAR STOCK LIST
+# -----------------------------
+st.sidebar.title("NSE Stock List")
+
 @st.cache_data(ttl=5)
 def load_data(symbol):
     stock = yf.Ticker(symbol)
     return stock.history(period="1d")
 
-# User input
-stock_input = st.text_input(
-    "Enter NSE Stock Symbol",
-    value="RELIANCE"
+selected_stock = st.sidebar.selectbox(
+    "Select Stock",
+    df["SYMBOL"]
+    
 )
+company_name = df.loc[
+    df["SYMBOL"] == selected_stock,
+    "NAME OF COMPANY"
+].values[0]
 
-# Button
-if st.button("Get Stock Data"):
+# -----------------------------
+# STOCK DATA
+# -----------------------------
+stock_symbol = selected_stock + ".NS"
 
-    # Add .NS automatically
-    stock_symbol = stock_input.upper()
+try:
+    stock = yf.Ticker(stock_symbol)
+    info = stock.info
 
-    if not stock_symbol.endswith(".NS"):
-        stock_symbol += ".NS"
+    current_price = info.get("currentPrice", "N/A")
+    day_high = info.get("dayHigh", "N/A")
+    day_low = info.get("dayLow", "N/A")
+    previous_close = info.get("previousClose", "N/A")
+    open_price = info.get("open", "N/A")
 
-    try:
-        # Fetch stock data
-        stock = yf.Ticker(stock_symbol)
-        info = stock.info
+    # -----------------------------
+    # DISPLAY DATA
+    # -----------------------------
+    st.subheader(f"Stock: {selected_stock}")
 
-        current_price = info.get("currentPrice", "N/A")
-        day_high = info.get("dayHigh", "N/A")
-        day_low = info.get("dayLow", "N/A")
-        previous_close = info.get("previousClose", "N/A")
+    st.subheader(f"Stock Name: {company_name}")
 
-        # Display results
-        st.success(f"Data for {stock_symbol}")
+    col1, col2, col3, col4, col5 = st.columns(5)
 
-        col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Current Price", current_price)
 
-        with col1:
-            st.metric("Current Price", current_price)
-            st.metric("Day High", day_high)
+    with col2:
+        st.metric("Day High", day_high)
 
-        with col2:
-            st.metric("Previous Close", previous_close)
-            st.metric("Day Low", day_low)
+    with col3:
+        st.metric("Day Low", day_low)
 
-    except Exception as e:
-        st.error(f"Error: {e}")
+    #st.divider()
+
+    #col4, col5 = st.columns(2)
+
+    with col4:
+        st.metric("Previous Close", previous_close)
+
+    with col5:
+        st.metric("Open Price", open_price)
+
+   
+
+except Exception as e:
+    st.error(f"Error: {e}")
