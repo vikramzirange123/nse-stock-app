@@ -27,7 +27,7 @@ st.title("📈 NSE Stock Dashboard")
 # -----------------------------
 st.sidebar.title("NSE Stock List")
 
-@st.cache_data(ttl=5)
+@st.cache_data(ttl=2)
 def load_data(symbol):
     stock = yf.Ticker(symbol)
     return stock.history(period="1d")
