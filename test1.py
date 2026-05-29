@@ -55,9 +55,10 @@ try:
     current_price = info.get("currentPrice", "N/A")
     day_high = info.get("dayHigh", "N/A")
     day_low = info.get("dayLow", "N/A")
-    previous_close = info.get("previousClose", "N/A")
-    open_price = info.get("open", "N/A")
-
+    #previous_close = info.get("previousClose", "N/A")
+    #open_price = info.get("open", "N/A")
+    pe_ratio = info.get("trailingPE","N/A")
+    volume = info.get("volume","N/A")
     # -----------------------------
     # DISPLAY DATA
     # -----------------------------
@@ -81,10 +82,10 @@ try:
     #col4, col5 = st.columns(2)
 
     with col4:
-        st.metric("Previous Close", previous_close)
+        st.metric("PE Ratio", pe_ratio)
 
     with col5:
-        st.metric("Open Price", open_price)
+        st.metric("Volume", volume)
 
    
 
